@@ -5,364 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Qazi Labor Manager</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f8f9fa;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .language-toggle {
-      float: right;
-      margin-bottom: 10px;
-    }
-    .tabs {
-      display: flex;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-    .tab {
-      padding: 10px 20px;
-      background: #e0e0e0;
-      border: 1px solid #ccc;
-      border-bottom: none;
-      margin-right: 5px;
-    }
-    .tab.active {
-      background: white;
-      border-bottom: 1px solid white;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .form-section, .worker-list {
-      margin-bottom: 30px;
-    }
-    input, select, button {
-      margin: 5px 0;
-      padding: 8px;
-      width: 100%;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-    .delete-btn {
-      background: red;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <div class="language-toggle">
-    <button onclick="toggleLanguage()">اردو / English</button>
-  </div>
-
-  <h1 id="app-title">Qazi Labor Manager</h1>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('daily')">Daily Workers</div>
-    <div class="tab" onclick="switchTab('monthly')">Monthly Workers</div>
-  </div>
-
-  <div id="daily" class="tab-content active">
-    <div class="form-section">
-      <h3 id="add-daily">Add Daily Worker</h3>
-      <input id="daily-name" placeholder="Name" />
-      <input id="daily-wage" type="number" placeholder="Daily Wage" value="500"/>
-      <button onclick="addWorker('daily')">Add Worker</button>
-    </div>
-    <div class="worker-list">
-      <h3 id="list-daily">Daily Workers</h3>
-      <table id="daily-table">
-        <thead>
-          <tr><th>Name</th><th>Wage</th><th>Attendance</th><th>Advance</th><th>Salary</th><th>Action</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div id="monthly" class="tab-content">
-    <div class="form-section">
-      <h3 id="add-monthly">Add Monthly Worker</h3>
-      <input id="monthly-name" placeholder="Name" />
-      <input id="monthly-salary" type="number" placeholder="Monthly Salary" value="15000"/>
-      <button onclick="addWorker('monthly')">Add Worker</button>
-    </div>
-    <div class="worker-list">
-      <h3 id="list-monthly">Monthly Workers</h3>
-      <table id="monthly-table">
-        <thead>
-          <tr><th>Name</th><th>Salary</th><th>Advance</th><th>Net Salary</th><th>Action</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <script>
-    const lang = {
-      en: {
-        "Qazi Labor Manager": "Qazi Labor Manager",
-        "Add Daily Worker": "Add Daily Worker",
-        "Daily Workers": "Daily Workers",
-        "Add Monthly Worker": "Add Monthly Worker",
-        "Monthly Workers": "Monthly Workers",
-        "Name": "Name",
-        "Wage": "Wage",
-        "Attendance": "Attendance",
-        "Advance": "Advance",
-        "Salary": "Salary",
-        "Action": "Action",
-        "Delete": "Delete",
-        "Salary": "Salary",
-        "Net Salary": "Net Salary",
-        "Monthly Salary": "Monthly Salary"
-      },
-      ur: {
-        "Qazi Labor Manager": "قاضی لیبر منیجر",
-        "Add Daily Worker": "روزانہ مزدور شامل کریں",
-        "Daily Workers": "روزانہ مزدور",
-        "Add Monthly Worker": "ماہانہ مزدور شامل کریں",
-        "Monthly Workers": "ماہانہ مزدور",
-        "Name": "نام",
-        "Wage": "اجرت",
-        "Attendance": "حاضری",
-        "Advance": "ایڈوانس",
-        "Salary": "تنخواہ",
-        "Action": "عمل",
-        "Delete": "حذف کریں",
-        "Net Salary": "خالص تنخواہ",
-        "Monthly Salary": "ماہانہ تنخواہ"
-      }
-    };
-    let currentLang = "en";
-
-    function toggleLanguage() {
-      currentLang = currentLang === "en" ? "ur" : "en";
-      updateLanguage();
-    }
-
-    function updateLanguage() {
-      document.getElementById("app-title").innerText = lang[currentLang]["Qazi Labor Manager"];
-      document.getElementById("add-daily").innerText = lang[currentLang]["Add Daily Worker"];
-      document.getElementById("list-daily").innerText = lang[currentLang]["Daily Workers"];
-      document.getElementById("add-monthly").innerText = lang[currentLang]["Add Monthly Worker"];
-      document.getElementById("list-monthly").innerText = lang[currentLang]["Monthly Workers"];
-
-      // Update table headers
-      const updateHeaders = (tableId, headers) => {
-        const ths = document.querySelectorAll(`#${tableId} thead th`);
-        ths.forEach((th, i) => th.innerText = lang[currentLang][headers[i]]);
-      };
-
-      updateHeaders("daily-table", ["Name", "Wage", "Attendance", "Advance", "Salary", "Action"]);
-      updateHeaders("monthly-table", ["Name", "Salary", "Advance", "Net Salary", "Action"]);
-    }
-
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-      document.querySelector(`.tab:contains("${tabName === 'daily' ? 'Daily' : 'Monthly'}")`)?.classList.add('active');
-      document.getElementById(tabName).classList.add('active');
-    }
-
-    let data = { daily: [], monthly: [] };
-
-    function addWorker(type) {
-      const name = document.getElementById(`${type}-name`).value;
-      const value = +document.getElementById(`${type}-${type === 'daily' ? 'wage' : 'salary'}`).value;
-
-      if (!name || !value) return alert("Fill all fields");
-
-      const worker = {
-        name,
-        wage: type === 'daily' ? value : undefined,
-        salary: type === 'monthly' ? value : undefined,
-        attendance: 0,
-        advance: 0
-      };
-      data[type].push(worker);
-      saveData();
-      renderTable(type);
-    }
-
-    function renderTable(type) {
-      const tbody = document.querySelector(`#${type}-table tbody`);
-      tbody.innerHTML = "";
-      data[type].forEach((w, idx) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${w.name}</td>
-          ${type === "daily" ? `
-            <td>${w.wage}</td>
-            <td><input type="number" min="0" value="${w.attendance}" onchange="updateAttendance('${type}', ${idx}, this.value)"/></td>
-            <td><input type="number" value="${w.advance}" onchange="updateAdvance('${type}', ${idx}, this.value)"/></td>
-            <td>${w.wage * w.attendance - w.advance}</td>
-          ` : `
-            <td>${w.salary}</td>
-            <td><input type="number" value="${w.advance}" onchange="updateAdvance('${type}', ${idx}, this.value)"/></td>
-            <td>${w.salary - w.advance}</td>
-          `}
-          <td><button class="delete-btn" onclick="deleteWorker('${type}', ${idx})">${lang[currentLang]["Delete"]}</button></td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function updateAttendance(type, index, value) {
-      data[type][index].attendance = +value;
-      saveData();
-      renderTable(type);
-    }
-
-    function updateAdvance(type, index, value) {
-      data[type][index].advance = +value;
-      saveData();
-      renderTable(type);
-    }
-
-    function deleteWorker(type, index) {
-      if (confirm("Are you sure you want to delete this worker?")) {
-        data[type].splice(index, 1);
-        saveData();
-        renderTable(type);
-      }
-    }
-
-    function saveData() {
-      localStorage.setItem("laborData", JSON.stringify(data));
-    }
-
-    function loadData() {
-      const saved = localStorage.getItem("laborData");
-      if (saved) data = JSON.parse(saved);
-      renderTable("daily");
-      renderTable("monthly");
-    }
-
-    loadData();
-    updateLanguage();
-  </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Qazi Labor Manager</title>
-  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1 id="app-title">Qazi Labor Manager</h1>
+    <h1 id="appTitle">Qazi Labor Manager</h1>
     <button onclick="toggleLanguage()">اردو / English</button>
   </header>
 
   <main>
-    <section id="worker-section">
-      <h2 data-en="Register Worker" data-ur="مزدور کا اندراج">Register Worker</h2>
-      <form id="worker-form">
-        <input type="text" id="name" placeholder="Name / نام" required />
-        <select id="workerType">
-          <option value="daily">Daily Wages / یومیہ</option>
-          <option value="monthly">Monthly / ماہانہ</option>
-        </select>
-        <input type="number" id="wage" placeholder="Wage / اجرت" value="500" />
-        <button type="submit">Add Worker / مزدور شامل کریں</button>
-      </form>
+    <section id="registration">
+      <h2 data-en="Register Worker" data-ur="رجسٹر ورکر">Register Worker</h2>
+      <input id="workerName" placeholder="Name" />
+      <input id="workerType" placeholder="Type (daily/monthly)" />
+      <input id="workerRate" placeholder="Rate (per day/month)" />
+      <button onclick="registerWorker()">Register</button>
     </section>
 
-    <section id="attendance-section">
-      <h2 data-en="Attendance" data-ur="حاضری">Attendance</h2>
-      <div id="worker-list"></div>
+    <section id="attendance">
+      <h2 data-en="Mark Attendance" data-ur="حاضری لگائیں">Mark Attendance</h2>
+      <input id="attWorkerName" placeholder="Name" />
+      <input id="attDate" type="date" />
+      <button onclick="markAttendance()">Mark</button>
     </section>
 
-    <section id="advance-section">
-      <h2 data-en="Advance Payments" data-ur="ایڈوانس ادائیگیاں">Advance Payments</h2>
-      <form id="advance-form">
-        <input type="text" id="advance-name" placeholder="Worker Name / نام" required />
-        <input type="number" id="advance-amount" placeholder="Amount / رقم" required />
-        <button type="submit">Record Advance</button>
-      </form>
+    <section id="advance">
+      <h2 data-en="Record Advance" data-ur="ایڈوانس درج کریں">Record Advance</h2>
+      <input id="advWorkerName" placeholder="Name" />
+      <input id="advAmount" type="number" placeholder="Amount" />
+      <button onclick="recordAdvance()">Record</button>
     </section>
 
-    <section id="salary-section">
-      <h2 data-en="Salary Summary" data-ur="تنخواہ کا خلاصہ">Salary Summary</h2>
-      <div id="salary-summary"></div>
+    <section id="salary">
+      <h2 data-en="Calculate Salary" data-ur="تنخواہ کیلکولیٹ کریں">Calculate Salary</h2>
+      <input id="salaryWorkerName" placeholder="Name" />
+      <button onclick="calculateSalary()">Calculate</button>
+      <div id="salaryOutput"></div>
+    </section>
+
+    <section id="workersList">
+      <h2 data-en="Registered Workers" data-ur="رجسٹرڈ ورکرز">Registered Workers</h2>
+      <ul id="workerList"></ul>
     </section>
   </main>
 
-  <footer>
-    <p>&copy; Qazi Agri Farms</p>
-  </footer>
-
-  <script src="app.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Qazi Labor Manager</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1 id="app-title">Qazi Labor Manager</h1>
-      <button id="lang-toggle">اردو</button>
-    </header>
-
-    <section>
-      <h2 id="form-title">Register Worker</h2>
-      <form id="register-form">
-        <label id="name-label" for="worker-name">Name</label>
-        <input type="text" id="worker-name" required />
-
-        <label id="type-label" for="worker-type">Type</label>
-        <select id="worker-type">
-          <option value="Daily" id="daily-option">Daily</option>
-          <option value="Monthly" id="monthly-option">Monthly</option>
-        </select>
-
-        <button type="submit" id="register-button">Register</button>
-      </form>
-    </section>
-
-    <section>
-      <h2 id="attendance-title">Mark Attendance</h2>
-      <div id="worker-list"></div>
-    </section>
-
-    <section>
-      <h2 id="advance-title">Record Advance</h2>
-      <!-- Already handled in the same worker list UI -->
-    </section>
-
-    <section>
-      <h2 id="summary-title">Monthly Summary</h2>
-      <div id="salary-summary"></div>
-    </section>
-  </div>
-
-  <script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
