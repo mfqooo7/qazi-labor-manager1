@@ -41,3 +41,216 @@
   <script src="script.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qazi Agri Farms - Labor Manager</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background: #2e7d32;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    .lang-switch {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    .container {
+      padding: 1rem;
+    }
+    h2 {
+      color: #2e7d32;
+    }
+    .section {
+      background: #fff;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+    label, input, select, button {
+      display: block;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    .urdu {
+      font-family: 'Noto Nastaliq Urdu', serif;
+      direction: rtl;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="title">Qazi Agri Farms - Labor Manager</h1>
+    <select class="lang-switch" onchange="switchLang(this.value)">
+      <option value="en">English</option>
+      <option value="ur">اردو</option>
+    </select>
+  </header>
+  <div class="container">
+    <div class="section">
+      <h2 id="registerTitle">Register Worker</h2>
+      <label id="nameLabel">Name</label>
+      <input id="name" />
+      <label id="typeLabel">Type</label>
+      <select id="type">
+        <option value="daily">Daily</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <label id="wageLabel">Wage</label>
+      <input type="number" id="wage" value="500" />
+      <button onclick="registerWorker()" id="registerBtn">Register</button>
+    </div>
+
+    <div class="section">
+      <h2 id="attendanceTitle">Mark Attendance</h2>
+      <select id="attendanceWorker"></select>
+      <button onclick="markAttendance()" id="attendanceBtn">Mark Present</button>
+    </div>
+
+    <div class="section">
+      <h2 id="advanceTitle">Record Advance</h2>
+      <select id="advanceWorker"></select>
+      <input type="number" id="advanceAmount" placeholder="Amount" />
+      <button onclick="recordAdvance()" id="advanceBtn">Record</button>
+    </div>
+
+    <div class="section">
+      <h2 id="summaryTitle">Monthly Summary</h2>
+      <select id="summaryWorker"></select>
+      <button onclick="showSummary()" id="summaryBtn">Show Summary</button>
+      <div id="summary"></div>
+    </div>
+  </div>
+
+  <script>
+    const langMap = {
+      en: {
+        title: "Qazi Agri Farms - Labor Manager",
+        registerTitle: "Register Worker",
+        nameLabel: "Name",
+        typeLabel: "Type",
+        wageLabel: "Wage",
+        registerBtn: "Register",
+        attendanceTitle: "Mark Attendance",
+        attendanceBtn: "Mark Present",
+        advanceTitle: "Record Advance",
+        advanceBtn: "Record",
+        summaryTitle: "Monthly Summary",
+        summaryBtn: "Show Summary"
+      },
+      ur: {
+        title: "قاضی ایگریکلچر فارم - مزدور مینیجر",
+        registerTitle: "مزدور رجسٹر کریں",
+        nameLabel: "نام",
+        typeLabel: "قسم",
+        wageLabel: "اجرت",
+        registerBtn: "رجسٹر کریں",
+        attendanceTitle: "حاضری درج کریں",
+        attendanceBtn: "حاضری",
+        advanceTitle: "ایڈوانس درج کریں",
+        advanceBtn: "درج کریں",
+        summaryTitle: "ماہانہ خلاصہ",
+        summaryBtn: "خلاصہ دیکھیں"
+      }
+    };
+
+    let currentLang = "en";
+
+    function switchLang(lang) {
+      currentLang = lang;
+      document.body.classList.toggle("urdu", lang === "ur");
+      const keys = langMap[lang];
+      for (let id in keys) {
+        document.getElementById(id).innerText = keys[id];
+      }
+    }
+
+    const workers = JSON.parse(localStorage.getItem("workers") || "[]");
+    const attendance = JSON.parse(localStorage.getItem("attendance") || "{}");
+    const advances = JSON.parse(localStorage.getItem("advances") || "{}");
+
+    function saveAll() {
+      localStorage.setItem("workers", JSON.stringify(workers));
+      localStorage.setItem("attendance", JSON.stringify(attendance));
+      localStorage.setItem("advances", JSON.stringify(advances));
+    }
+
+    function refreshDropdowns() {
+      ["attendanceWorker", "advanceWorker", "summaryWorker"].forEach(id => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = workers.map(w => `<option>${w.name}</option>`).join("");
+      });
+    }
+
+    function registerWorker() {
+      const name = document.getElementById("name").value;
+      const type = document.getElementById("type").value;
+      const wage = +document.getElementById("wage").value;
+      if (!name) return alert("Enter name");
+      workers.push({ name, type, wage });
+      saveAll();
+      refreshDropdowns();
+      alert("Registered");
+    }
+
+    function markAttendance() {
+      const name = document.getElementById("attendanceWorker").value;
+      if (!attendance[name]) attendance[name] = [];
+      const today = new Date().toISOString().slice(0, 10);
+      if (!attendance[name].includes(today)) attendance[name].push(today);
+      saveAll();
+      alert("Attendance marked");
+    }
+
+    function recordAdvance() {
+      const name = document.getElementById("advanceWorker").value;
+      const amount = +document.getElementById("advanceAmount").value;
+      if (!advances[name]) advances[name] = 0;
+      advances[name] += amount;
+      saveAll();
+      alert("Advance recorded");
+    }
+
+    function showSummary() {
+      const name = document.getElementById("summaryWorker").value;
+      const worker = workers.find(w => w.name === name);
+      const days = attendance[name]?.length || 0;
+      const advance = advances[name] || 0;
+      const earned = worker.type === "daily" ? worker.wage * days : worker.wage;
+      const due = earned - advance;
+      document.getElementById("summary").innerHTML = `
+        <p><strong>${name}</strong></p>
+        <p>${worker.type === "daily" ? `Days: ${days}` : `Monthly Salary`}</p>
+        <p>Earned: ${earned}</p>
+        <p>Advance: ${advance}</p>
+        <p><strong>Due: ${due}</strong></p>
+      `;
+    }
+
+    refreshDropdowns();
+  </script>
+</body>
+</html>
+
