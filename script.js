@@ -1,86 +1,85 @@
-let language = 'en';
-
-const translations = {
-  en: {
-    appTitle: "Qazi Agri Farms - Labor Manager",
-    dailyTitle: "Daily Workers",
-    monthlyTitle: "Monthly Workers",
-    namePlaceholder: "Worker Name",
-    wagePlaceholder: "Monthly Wage",
-    addButton: "Add Worker"
-  },
-  ur: {
-    appTitle: "قاضی ایگری فارمز - لیبر مینیجر",
-    dailyTitle: "روزانہ اجرت والے مزدور",
-    monthlyTitle: "ماہانہ اجرت والے مزدور",
-    namePlaceholder: "مزدور کا نام",
-    wagePlaceholder: "ماہانہ تنخواہ",
-    addButton: "مزدور شامل کریں"
-  }
-};
+let language = "en";
 
 function toggleLanguage() {
-  language = language === 'en' ? 'ur' : 'en';
-  updateText();
-}
-
-function updateText() {
-  const t = translations[language];
-  document.getElementById('appTitle').textContent = t.appTitle;
-  document.getElementById('dailyTitle').textContent = t.dailyTitle;
-  document.getElementById('monthlyTitle').textContent = t.monthlyTitle;
-  document.getElementById('dailyName').placeholder = t.namePlaceholder;
-  document.getElementById('monthlyName').placeholder = t.namePlaceholder;
-  document.getElementById('monthlyWage').placeholder = t.wagePlaceholder;
-}
-
-function showTab(tab) {
-  document.getElementById('dailyTab').classList.add('hidden');
-  document.getElementById('monthlyTab').classList.add('hidden');
-  document.getElementById(tab + 'Tab').classList.remove('hidden');
-}
-
-function addWorker(type) {
-  const name = document.getElementById(`${type}Name`).value;
-  let wage = 500; // default wage for daily
-  if (type === 'monthly') {
-    wage = document.getElementById('monthlyWage').value || wage;
-  }
-
-  const worker = {
-    name,
-    wage,
-    type
-  };
-
-  const workers = JSON.parse(localStorage.getItem(type + 'Workers')) || [];
-  workers.push(worker);
-  localStorage.setItem(type + 'Workers', JSON.stringify(workers));
-  displayWorkers(type);
-}
-
-function displayWorkers(type) {
-  const list = document.getElementById(type + 'List');
-  list.innerHTML = '';
-  const workers = JSON.parse(localStorage.getItem(type + 'Workers')) || [];
-  workers.forEach((w, i) => {
-    const item = document.createElement('li');
-    item.textContent = `${w.name} - Rs. ${w.wage}`;
-    list.appendChild(item);
+  language = language === "en" ? "ur" : "en";
+  document.querySelectorAll("[data-en]").forEach(el => {
+    el.textContent = el.dataset[language];
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  updateText();
-  displayWorkers('daily');
-  displayWorkers('monthly');
-});
-function deleteWorker(type, index) {
-  if (confirm("Are you sure you want to delete this worker?")) {
-    const key = type === 'daily' ? 'dailyWorkers' : 'monthlyWorkers';
-    let workers = JSON.parse(localStorage.getItem(key)) || [];
-    workers.splice(index, 1);
-    localStorage.setItem(key, JSON.stringify(workers));
-    loadWorkers(); // Refresh the UI
-  }
+function saveData(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
 }
+
+function getData(key) {
+  return JSON.parse(localStorage.getItem(key) || "[]");
+}
+
+function registerWorker() {
+  const name = document.getElementById("workerName").value;
+  const type = document.getElementById("workerType").value.toLowerCase();
+  const rate = parseFloat(document.getElementById("workerRate").value);
+  if (!name || !rate || !["daily", "monthly"].includes(type)) return alert("Fill valid data");
+  
+  const workers = getData("workers");
+  workers.push({ name, type, rate });
+  saveData("workers", workers);
+  displayWorkers();
+}
+
+function displayWorkers() {
+  const list = document.getElementById("workerList");
+  list.innerHTML = "";
+  getData("workers").forEach((w, i) => {
+    const li = document.createElement("li");
+    li.textContent = `${w.name} (${w.type}, ${w.rate})`;
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Delete";
+    delBtn.onclick = () => deleteWorker(i);
+    li.appendChild(delBtn);
+    list.appendChild(li);
+  });
+}
+
+function deleteWorker(index) {
+  if (!confirm("Are you sure?")) return;
+  const workers = getData("workers");
+  workers.splice(index, 1);
+  saveData("workers", workers);
+  displayWorkers();
+}
+
+function markAttendance() {
+  const name = document.getElementById("attWorkerName").value;
+  const date = document.getElementById("attDate").value;
+  if (!name || !date) return alert("Fill both fields");
+  const attendance = getData("attendance");
+  attendance.push({ name, date });
+  saveData("attendance", attendance);
+}
+
+function recordAdvance() {
+  const name = document.getElementById("advWorkerName").value;
+  const amount = parseFloat(document.getElementById("advAmount").value);
+  if (!name || !amount) return alert("Fill both fields");
+  const advances = getData("advances");
+  advances.push({ name, amount });
+  saveData("advances", advances);
+}
+
+function calculateSalary() {
+  const name = document.getElementById("salaryWorkerName").value;
+  const workers = getData("workers");
+  const worker = workers.find(w => w.name === name);
+  if (!worker) return alert("Worker not found");
+
+  const att = getData("attendance").filter(a => a.name === name).length;
+  const adv = getData("advances").filter(a => a.name === name).reduce((sum, a) => sum + a.amount, 0);
+  const salary = worker.type === "daily" ? worker.rate * att : worker.rate;
+  const final = salary - adv;
+
+  document.getElementById("salaryOutput").textContent =
+    `Base: ${salary}, Advance: ${adv}, Final: ${final}`;
+}
+
+window.onload = displayWorkers;
