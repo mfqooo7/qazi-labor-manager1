@@ -1,38 +1,73 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f0f2f5;
   margin: 0;
   padding: 0;
+  background: #f5f5f5;
 }
 
-.container {
+.app-container {
   max-width: 600px;
   margin: auto;
   padding: 20px;
+}
+
+header {
+  text-align: center;
+  background-color: #388e3c;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+header button {
   background: white;
-  margin-top: 40px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  color: #388e3c;
+  border: none;
+  padding: 5px 10px;
+  margin-top: 10px;
+  border-radius: 4px;
 }
 
-h1, h2 {
-  color: #333;
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
 }
 
-input, select, button {
+.tab {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #ccc;
+}
+
+.hidden {
+  display: none;
+}
+
+.form input {
   margin: 5px 0;
   padding: 8px;
-  width: 100%;
-  box-sizing: border-box;
+  width: 80%;
 }
 
-button {
-  background-color: #28a745;
+.form button {
+  margin: 5px 0;
+  padding: 8px;
+  background: #388e3c;
   color: white;
   border: none;
-  cursor: pointer;
+  border-radius: 4px;
 }
 
-button:hover {
-  background-color: #218838;
+.worker-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.worker-list li {
+  background: #e8f5e9;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 4px;
 }
