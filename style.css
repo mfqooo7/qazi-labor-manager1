@@ -1,88 +1,30 @@
 body {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
-  background: #f4f7f8;
-  color: #333;
+  padding: 1rem;
+  background: #f7f9fb;
 }
 
 header {
-  background: #2d6a4f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #4caf50;
   color: white;
   padding: 1rem;
-  text-align: center;
-  position: sticky;
-  top: 0;
-}
-
-header button {
-  background: #40916c;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  margin-top: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-main {
-  padding: 1rem;
-  max-width: 900px;
-  margin: auto;
 }
 
 section {
   background: white;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-h2 {
-  margin-top: 0;
-  color: #1d3557;
-}
-
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-form input, form select, form button {
-  padding: 0.5rem;
-  font-size: 1rem;
-}
-
-form input, form select {
-  flex: 1;
-}
-
-form button {
-  background-color: #1d3557;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-#worker-list, #salary-summary {
   margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.worker-entry {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.3rem 0;
-  border-bottom: 1px solid #ccc;
-}
-
-.worker-entry button {
-  background: #e63946;
-  border: none;
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 3px;
-  cursor: pointer;
+input, button {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 300px;
 }
