@@ -75,3 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
   displayWorkers('daily');
   displayWorkers('monthly');
 });
+function deleteWorker(type, index) {
+  if (confirm("Are you sure you want to delete this worker?")) {
+    const key = type === 'daily' ? 'dailyWorkers' : 'monthlyWorkers';
+    let workers = JSON.parse(localStorage.getItem(key)) || [];
+    workers.splice(index, 1);
+    localStorage.setItem(key, JSON.stringify(workers));
+    loadWorkers(); // Refresh the UI
+  }
+}
