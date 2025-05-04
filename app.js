@@ -1,83 +1,136 @@
-const workers = [];
-
-function updateWorkerDropdowns() {
-  const dropdowns = [
-    document.getElementById('attendanceWorker'),
-    document.getElementById('advanceWorker'),
-    document.getElementById('salaryWorker')
-  ];
-
-  dropdowns.forEach(dropdown => {
-    dropdown.innerHTML = '';
-    workers.forEach((worker, index) => {
-      const option = document.createElement('option');
-      option.value = index;
-      option.textContent = worker.name;
-      dropdown.appendChild(option);
-    });
-  });
-}
-
-function registerWorker() {
-  const name = document.getElementById('workerName').value;
-  const dailyWage = parseFloat(document.getElementById('dailyWage').value);
-
-  if (!name || isNaN(dailyWage)) {
-    alert('Please enter valid worker details.');
-    return;
+const langToggle = document.getElementById("lang-toggle");
+const labels = {
+  en: {
+    title: "Qazi Labor Manager",
+    register: "Register Worker",
+    name: "Name",
+    type: "Type",
+    daily: "Daily",
+    monthly: "Monthly",
+    registerBtn: "Register",
+    attendance: "Mark Attendance",
+    advance: "Record Advance",
+    summary: "Monthly Summary",
+    delete: "Delete",
+    attendanceBtn: "Present",
+    advanceBtn: "Give Advance"
+  },
+  ur: {
+    title: "قاضی لیبر مینیجر",
+    register: "ورکر رجسٹر کریں",
+    name: "نام",
+    type: "قسم",
+    daily: "یومیہ",
+    monthly: "ماہانہ",
+    registerBtn: "رجسٹر کریں",
+    attendance: "حاضری لگائیں",
+    advance: "ایڈوانس درج کریں",
+    summary: "ماہانہ خلاصہ",
+    delete: "حذف کریں",
+    attendanceBtn: "حاضر",
+    advanceBtn: "ایڈوانس دیں"
   }
+};
 
-  workers.push({
-    name,
-    dailyWage,
-    attendance: 0,
-    advance: 0
-  });
+let currentLang = "en";
+let workers = JSON.parse(localStorage.getItem("workers") || "[]");
 
-  updateWorkerDropdowns();
-  displayWorkers();
-  document.getElementById('workerName').value = '';
-  document.getElementById('dailyWage').value = '';
+function saveWorkers() {
+  localStorage.setItem("workers", JSON.stringify(workers));
 }
 
-function markAttendance() {
-  const index = document.getElementById('attendanceWorker').value;
+function renderWorkers() {
+  const list = document.getElementById("worker-list");
+  list.innerHTML = "";
+  workers.forEach((worker, index) => {
+    const div = document.createElement("div");
+    div.className = "worker-entry";
+    div.innerHTML = `
+      <strong>${worker.name}</strong> (${worker.type}) - 
+      Attendance: ${worker.attendance} | Advance: ₹${worker.advance}
+      <button onclick="markAttendance(${index})">${labels[currentLang].attendanceBtn}</button>
+      <button onclick="giveAdvance(${index})">${labels[currentLang].advanceBtn}</button>
+      <button onclick="deleteWorker(${index})">${labels[currentLang].delete}</button>
+    `;
+    list.appendChild(div);
+  });
+  updateSummary();
+}
+
+function updateSummary() {
+  const summary = document.getElementById("salary-summary");
+  let dailyTotal = 0, monthlyTotal = 0;
+  workers.forEach(w => {
+    if (w.type === "Daily") {
+      dailyTotal += w.attendance * 500 - w.advance;
+    } else {
+      monthlyTotal += 15000 - w.advance;
+    }
+  });
+  summary.innerHTML = `
+    <p><strong>Daily Workers Net Salary:</strong> ₹${dailyTotal}</p>
+    <p><strong>Monthly Workers Net Salary:</strong> ₹${monthlyTotal}</p>
+  `;
+}
+
+function addWorker(e) {
+  e.preventDefault();
+  const name = document.getElementById("worker-name").value.trim();
+  const type = document.getElementById("worker-type").value;
+  if (!name) return alert("Enter name");
+  workers.push({ name, type, attendance: 0, advance: 0 });
+  saveWorkers();
+  renderWorkers();
+  e.target.reset();
+}
+
+function markAttendance(index) {
   workers[index].attendance += 1;
-  displayWorkers();
+  saveWorkers();
+  renderWorkers();
 }
 
-function giveAdvance() {
-  const index = document.getElementById('advanceWorker').value;
-  const amount = parseFloat(document.getElementById('advanceAmount').value);
-
-  if (isNaN(amount)) {
-    alert('Please enter a valid amount.');
-    return;
+function giveAdvance(index) {
+  const amt = prompt("Advance amount?");
+  const val = parseInt(amt);
+  if (!isNaN(val)) {
+    workers[index].advance += val;
+    saveWorkers();
+    renderWorkers();
   }
-
-  workers[index].advance += amount;
-  document.getElementById('advanceAmount').value = '';
-  displayWorkers();
 }
 
-function calculateSalary() {
-  const index = document.getElementById('salaryWorker').value;
-  const worker = workers[index];
-  const salary = (worker.attendance * worker.dailyWage) - worker.advance;
-
-  document.getElementById('salaryResult').innerText = 
-    `${worker.name}'s salary is ₹${salary}`;
+function deleteWorker(index) {
+  if (confirm("Are you sure you want to delete this worker?")) {
+    workers.splice(index, 1);
+    saveWorkers();
+    renderWorkers();
+  }
 }
 
-function displayWorkers() {
-  const list = document.getElementById('workersList');
-  list.innerHTML = '';
-
-  workers.forEach(worker => {
-    const item = document.createElement('li');
-    item.textContent = `${worker.name} - ₹${worker.dailyWage}/day | Present: ${worker.attendance} | Advance: ₹${worker.advance}`;
-    list.appendChild(item);
-  });
+function switchLanguage() {
+  currentLang = currentLang === "en" ? "ur" : "en";
+  updateText();
+  renderWorkers();
 }
 
-updateWorkerDropdowns();
+function updateText() {
+  const l = labels[currentLang];
+  document.getElementById("app-title").textContent = l.title;
+  document.getElementById("form-title").textContent = l.register;
+  document.getElementById("name-label").textContent = l.name;
+  document.getElementById("type-label").textContent = l.type;
+  document.getElementById("daily-option").textContent = l.daily;
+  document.getElementById("monthly-option").textContent = l.monthly;
+  document.getElementById("register-button").textContent = l.registerBtn;
+  document.getElementById("attendance-title").textContent = l.attendance;
+  document.getElementById("advance-title").textContent = l.advance;
+  document.getElementById("summary-title").textContent = l.summary;
+  langToggle.textContent = currentLang === "en" ? "اردو" : "English";
+}
+
+document.getElementById("register-form").addEventListener("submit", addWorker);
+langToggle.addEventListener("click", switchLanguage);
+
+updateText();
+renderWorkers();
