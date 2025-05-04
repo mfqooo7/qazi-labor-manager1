@@ -261,3 +261,58 @@
   </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Qazi Labor Manager</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1 id="app-title">Qazi Labor Manager</h1>
+    <button onclick="toggleLanguage()">اردو / English</button>
+  </header>
+
+  <main>
+    <section id="worker-section">
+      <h2 data-en="Register Worker" data-ur="مزدور کا اندراج">Register Worker</h2>
+      <form id="worker-form">
+        <input type="text" id="name" placeholder="Name / نام" required />
+        <select id="workerType">
+          <option value="daily">Daily Wages / یومیہ</option>
+          <option value="monthly">Monthly / ماہانہ</option>
+        </select>
+        <input type="number" id="wage" placeholder="Wage / اجرت" value="500" />
+        <button type="submit">Add Worker / مزدور شامل کریں</button>
+      </form>
+    </section>
+
+    <section id="attendance-section">
+      <h2 data-en="Attendance" data-ur="حاضری">Attendance</h2>
+      <div id="worker-list"></div>
+    </section>
+
+    <section id="advance-section">
+      <h2 data-en="Advance Payments" data-ur="ایڈوانس ادائیگیاں">Advance Payments</h2>
+      <form id="advance-form">
+        <input type="text" id="advance-name" placeholder="Worker Name / نام" required />
+        <input type="number" id="advance-amount" placeholder="Amount / رقم" required />
+        <button type="submit">Record Advance</button>
+      </form>
+    </section>
+
+    <section id="salary-section">
+      <h2 data-en="Salary Summary" data-ur="تنخواہ کا خلاصہ">Salary Summary</h2>
+      <div id="salary-summary"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; Qazi Agri Farms</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
