@@ -3,46 +3,179 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Qazi Labor Manager</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Qazi Agri Farms - Labor Manager</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
+    header {
+      background: #2e7d32;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h2 {
+      color: #2e7d32;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 6px 0;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #2e7d32;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1b5e20;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #e8f5e9;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Qazi Agri Farms - Labor Manager</h1>
+  </header>
   <div class="container">
-    <h1>Qazi Labor Manager</h1>
+    <h2>Register Worker</h2>
+    <select id="workerType">
+      <option value="daily">Daily Wage</option>
+      <option value="monthly">Monthly Salary</option>
+    </select>
+    <input type="text" id="name" placeholder="Worker Name"/>
+    <input type="number" id="wage" placeholder="Wage (Default: 500)"/>
+    <button onclick="registerWorker()">Add Worker</button>
 
-    <section>
-      <h2>Register Worker</h2>
-      <input type="text" id="workerName" placeholder="Worker Name" />
-      <input type="number" id="dailyWage" placeholder="Daily Wage" />
-      <button onclick="registerWorker()">Register</button>
-    </section>
+    <h2>Mark Attendance</h2>
+    <select id="attendanceWorker"></select>
+    <input type="date" id="attendanceDate"/>
+    <button onclick="markAttendance()">Mark Present</button>
 
-    <section>
-      <h2>Mark Attendance</h2>
-      <select id="attendanceWorker"></select>
-      <button onclick="markAttendance()">Mark Present</button>
-    </section>
+    <h2>Record Advance</h2>
+    <select id="advanceWorker"></select>
+    <input type="number" id="advanceAmount" placeholder="Advance Amount"/>
+    <button onclick="recordAdvance()">Add Advance</button>
 
-    <section>
-      <h2>Give Advance</h2>
-      <select id="advanceWorker"></select>
-      <input type="number" id="advanceAmount" placeholder="Advance Amount" />
-      <button onclick="giveAdvance()">Give Advance</button>
-    </section>
-
-    <section>
-      <h2>Calculate Salary</h2>
-      <select id="salaryWorker"></select>
-      <button onclick="calculateSalary()">Calculate</button>
-      <div id="salaryResult"></div>
-    </section>
-
-    <section>
-      <h2>Workers List</h2>
-      <ul id="workersList"></ul>
-    </section>
+    <h2>Monthly Summary</h2>
+    <select id="summaryWorker"></select>
+    <input type="month" id="summaryMonth"/>
+    <button onclick="showSummary()">Get Summary</button>
+    <div id="summaryOutput"></div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    const workers = JSON.parse(localStorage.getItem("workers") || "[]");
+    const attendance = JSON.parse(localStorage.getItem("attendance") || "[]");
+    const advances = JSON.parse(localStorage.getItem("advances") || "[]");
+
+    function saveData() {
+      localStorage.setItem("workers", JSON.stringify(workers));
+      localStorage.setItem("attendance", JSON.stringify(attendance));
+      localStorage.setItem("advances", JSON.stringify(advances));
+    }
+
+    function updateDropdowns() {
+      ["attendanceWorker", "advanceWorker", "summaryWorker"].forEach(id => {
+        const select = document.getElementById(id);
+        select.innerHTML = "";
+        workers.forEach((w, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.text = `${w.name} (${w.type})`;
+          select.appendChild(opt);
+        });
+      });
+    }
+
+    function registerWorker() {
+      const name = document.getElementById("name").value;
+      const wage = +document.getElementById("wage").value || 500;
+      const type = document.getElementById("workerType").value;
+      if (!name) return alert("Enter a name");
+
+      workers.push({ name, wage, type });
+      saveData();
+      updateDropdowns();
+      alert("Worker added!");
+    }
+
+    function markAttendance() {
+      const id = document.getElementById("attendanceWorker").value;
+      const date = document.getElementById("attendanceDate").value;
+      if (!date) return alert("Select a date");
+
+      attendance.push({ workerId: +id, date });
+      saveData();
+      alert("Attendance marked");
+    }
+
+    function recordAdvance() {
+      const id = document.getElementById("advanceWorker").value;
+      const amt = +document.getElementById("advanceAmount").value;
+      if (!amt) return alert("Enter amount");
+
+      advances.push({ workerId: +id, amount: amt, date: new Date().toISOString().slice(0, 10) });
+      saveData();
+      alert("Advance recorded");
+    }
+
+    function showSummary() {
+      const id = +document.getElementById("summaryWorker").value;
+      const month = document.getElementById("summaryMonth").value;
+      const worker = workers[id];
+      if (!month) return alert("Select month");
+
+      const monthStr = month;
+      const att = attendance.filter(a => a.workerId === id && a.date.startsWith(monthStr));
+      const adv = advances.filter(a => a.workerId === id && a.date.startsWith(monthStr));
+      const totalAdvance = adv.reduce((sum, a) => sum + a.amount, 0);
+      const totalDays = att.length;
+      const salary =
+        worker.type === "monthly"
+          ? worker.wage
+          : totalDays * worker.wage;
+      const income = salary - totalAdvance;
+
+      document.getElementById("summaryOutput").innerHTML = `
+        <table>
+          <tr><th>Name</th><td>${worker.name}</td></tr>
+          <tr><th>Type</th><td>${worker.type}</td></tr>
+          <tr><th>Month</th><td>${month}</td></tr>
+          <tr><th>Present Days</th><td>${totalDays}</td></tr>
+          <tr><th>Total Salary</th><td>${salary}</td></tr>
+          <tr><th>Total Advance</th><td>${totalAdvance}</td></tr>
+          <tr><th>Net Income</th><td>${income}</td></tr>
+        </table>
+      `;
+    }
+
+    updateDropdowns();
+  </script>
 </body>
 </html>
