@@ -1,181 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Qazi Agri Farms - Labor Manager</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qazi Agri Farms Labor Manager</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
-      background: #f4f4f4;
-      color: #333;
+      background: #f8f9fa;
     }
     header {
       background: #2e7d32;
       color: white;
       padding: 1rem;
       text-align: center;
+      font-size: 1.5rem;
     }
     .container {
-      max-width: 900px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
     }
     h2 {
+      margin-top: 1.5rem;
       color: #2e7d32;
     }
     input, select, button {
-      padding: 8px;
-      margin: 6px 0;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
       width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background: #2e7d32;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #1b5e20;
+      box-sizing: border-box;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      margin-top: 1rem;
     }
     th, td {
+      padding: 0.5rem;
       border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
     }
-    th {
-      background: #e8f5e9;
+    .section {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Qazi Agri Farms - Labor Manager</h1>
-  </header>
+  <header>Qazi Agri Farms Labor Manager</header>
   <div class="container">
-    <h2>Register Worker</h2>
-    <select id="workerType">
-      <option value="daily">Daily Wage</option>
-      <option value="monthly">Monthly Salary</option>
-    </select>
-    <input type="text" id="name" placeholder="Worker Name"/>
-    <input type="number" id="wage" placeholder="Wage (Default: 500)"/>
-    <button onclick="registerWorker()">Add Worker</button>
+    <div class="section">
+      <h2>Add Worker</h2>
+      <input type="text" id="name" placeholder="Worker Name">
+      <select id="type">
+        <option value="daily">Daily</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <input type="number" id="wage" placeholder="Wage (Default 500)">
+      <button onclick="addWorker()">Add Worker</button>
+    </div>
 
-    <h2>Mark Attendance</h2>
-    <select id="attendanceWorker"></select>
-    <input type="date" id="attendanceDate"/>
-    <button onclick="markAttendance()">Mark Present</button>
+    <div class="section">
+      <h2>Mark Attendance</h2>
+      <select id="attendName"></select>
+      <input type="date" id="attendDate">
+      <button onclick="markAttendance()">Mark Present</button>
+    </div>
 
-    <h2>Record Advance</h2>
-    <select id="advanceWorker"></select>
-    <input type="number" id="advanceAmount" placeholder="Advance Amount"/>
-    <button onclick="recordAdvance()">Add Advance</button>
+    <div class="section">
+      <h2>Give Advance</h2>
+      <select id="advanceName"></select>
+      <input type="number" id="advanceAmount" placeholder="Advance Amount">
+      <button onclick="giveAdvance()">Record Advance</button>
+    </div>
 
-    <h2>Monthly Summary</h2>
-    <select id="summaryWorker"></select>
-    <input type="month" id="summaryMonth"/>
-    <button onclick="showSummary()">Get Summary</button>
-    <div id="summaryOutput"></div>
+    <div class="section">
+      <h2>Monthly Summary</h2>
+      <select id="summaryName"></select>
+      <button onclick="showSummary()">Show Summary</button>
+      <pre id="summaryOutput"></pre>
+    </div>
+
+    <div class="section">
+      <h2>All Workers</h2>
+      <table id="workerTable">
+        <thead>
+          <tr><th>Name</th><th>Type</th><th>Wage</th><th>Attendances</th><th>Advance</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    const workers = JSON.parse(localStorage.getItem("workers") || "[]");
-    const attendance = JSON.parse(localStorage.getItem("attendance") || "[]");
-    const advances = JSON.parse(localStorage.getItem("advances") || "[]");
+    const defaultWage = 500;
+    let workers = JSON.parse(localStorage.getItem("workers")) || [];
 
-    function saveData() {
+    function saveWorkers() {
       localStorage.setItem("workers", JSON.stringify(workers));
-      localStorage.setItem("attendance", JSON.stringify(attendance));
-      localStorage.setItem("advances", JSON.stringify(advances));
     }
 
-    function updateDropdowns() {
-      ["attendanceWorker", "advanceWorker", "summaryWorker"].forEach(id => {
-        const select = document.getElementById(id);
-        select.innerHTML = "";
-        workers.forEach((w, i) => {
-          const opt = document.createElement("option");
-          opt.value = i;
-          opt.text = `${w.name} (${w.type})`;
-          select.appendChild(opt);
-        });
-      });
-    }
+    function addWorker() {
+      const name = document.getElementById("name").value.trim();
+      const type = document.getElementById("type").value;
+      const wage = parseInt(document.getElementById("wage").value) || defaultWage;
 
-    function registerWorker() {
-      const name = document.getElementById("name").value;
-      const wage = +document.getElementById("wage").value || 500;
-      const type = document.getElementById("workerType").value;
-      if (!name) return alert("Enter a name");
+      if (!name) return alert("Enter worker name");
 
-      workers.push({ name, wage, type });
-      saveData();
-      updateDropdowns();
-      alert("Worker added!");
+      workers.push({ name, type, wage, attendance: [], advance: 0 });
+      saveWorkers();
+      updateUI();
     }
 
     function markAttendance() {
-      const id = document.getElementById("attendanceWorker").value;
-      const date = document.getElementById("attendanceDate").value;
-      if (!date) return alert("Select a date");
+      const name = document.getElementById("attendName").value;
+      const date = document.getElementById("attendDate").value;
 
-      attendance.push({ workerId: +id, date });
-      saveData();
-      alert("Attendance marked");
+      const worker = workers.find(w => w.name === name);
+      if (worker && !worker.attendance.includes(date)) {
+        worker.attendance.push(date);
+        saveWorkers();
+        updateUI();
+      }
     }
 
-    function recordAdvance() {
-      const id = document.getElementById("advanceWorker").value;
-      const amt = +document.getElementById("advanceAmount").value;
-      if (!amt) return alert("Enter amount");
+    function giveAdvance() {
+      const name = document.getElementById("advanceName").value;
+      const amount = parseInt(document.getElementById("advanceAmount").value);
 
-      advances.push({ workerId: +id, amount: amt, date: new Date().toISOString().slice(0, 10) });
-      saveData();
-      alert("Advance recorded");
+      const worker = workers.find(w => w.name === name);
+      if (worker && amount) {
+        worker.advance += amount;
+        saveWorkers();
+        updateUI();
+      }
     }
 
     function showSummary() {
-      const id = +document.getElementById("summaryWorker").value;
-      const month = document.getElementById("summaryMonth").value;
-      const worker = workers[id];
-      if (!month) return alert("Select month");
+      const name = document.getElementById("summaryName").value;
+      const worker = workers.find(w => w.name === name);
 
-      const monthStr = month;
-      const att = attendance.filter(a => a.workerId === id && a.date.startsWith(monthStr));
-      const adv = advances.filter(a => a.workerId === id && a.date.startsWith(monthStr));
-      const totalAdvance = adv.reduce((sum, a) => sum + a.amount, 0);
-      const totalDays = att.length;
-      const salary =
-        worker.type === "monthly"
-          ? worker.wage
-          : totalDays * worker.wage;
-      const income = salary - totalAdvance;
-
-      document.getElementById("summaryOutput").innerHTML = `
-        <table>
-          <tr><th>Name</th><td>${worker.name}</td></tr>
-          <tr><th>Type</th><td>${worker.type}</td></tr>
-          <tr><th>Month</th><td>${month}</td></tr>
-          <tr><th>Present Days</th><td>${totalDays}</td></tr>
-          <tr><th>Total Salary</th><td>${salary}</td></tr>
-          <tr><th>Total Advance</th><td>${totalAdvance}</td></tr>
-          <tr><th>Net Income</th><td>${income}</td></tr>
-        </table>
-      `;
+      if (worker) {
+        const attendances = worker.attendance.length;
+        const totalSalary = worker.wage * attendances;
+        const remaining = totalSalary - worker.advance;
+        document.getElementById("summaryOutput").textContent =
+          `Name: ${worker.name}\n` +
+          `Type: ${worker.type}\n` +
+          `Attendance Days: ${attendances}\n` +
+          `Wage per Day: ${worker.wage}\n` +
+          `Total Salary: ${totalSalary}\n` +
+          `Advance Taken: ${worker.advance}\n` +
+          `Remaining Salary: ${remaining}`;
+      }
     }
 
-    updateDropdowns();
+    function updateUI() {
+      const attendSel = document.getElementById("attendName");
+      const advSel = document.getElementById("advanceName");
+      const sumSel = document.getElementById("summaryName");
+      const tableBody = document.querySelector("#workerTable tbody");
+
+      [attendSel, advSel, sumSel].forEach(sel => sel.innerHTML = "");
+      tableBody.innerHTML = "";
+
+      workers.forEach(worker => {
+        [attendSel, advSel, sumSel].forEach(sel => {
+          const opt = document.createElement("option");
+          opt.value = opt.textContent = worker.name;
+          sel.appendChild(opt);
+        });
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${worker.name}</td>
+          <td>${worker.type}</td>
+          <td>${worker.wage}</td>
+          <td>${worker.attendance.length}</td>
+          <td>${worker.advance}</td>`;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    updateUI();
   </script>
 </body>
 </html>
