@@ -316,3 +316,53 @@
   <script src="app.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qazi Labor Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 id="app-title">Qazi Labor Manager</h1>
+      <button id="lang-toggle">اردو</button>
+    </header>
+
+    <section>
+      <h2 id="form-title">Register Worker</h2>
+      <form id="register-form">
+        <label id="name-label" for="worker-name">Name</label>
+        <input type="text" id="worker-name" required />
+
+        <label id="type-label" for="worker-type">Type</label>
+        <select id="worker-type">
+          <option value="Daily" id="daily-option">Daily</option>
+          <option value="Monthly" id="monthly-option">Monthly</option>
+        </select>
+
+        <button type="submit" id="register-button">Register</button>
+      </form>
+    </section>
+
+    <section>
+      <h2 id="attendance-title">Mark Attendance</h2>
+      <div id="worker-list"></div>
+    </section>
+
+    <section>
+      <h2 id="advance-title">Record Advance</h2>
+      <!-- Already handled in the same worker list UI -->
+    </section>
+
+    <section>
+      <h2 id="summary-title">Monthly Summary</h2>
+      <div id="salary-summary"></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
