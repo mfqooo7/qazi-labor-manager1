@@ -7,8 +7,59 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Welcome to Qazi Labor Manager</h1>
-  <p>This is your web app's homepage.</p>
+  <header>
+    <h1>Qazi Labor Manager</h1>
+    <nav>
+      <a href="#register">Register Worker</a>
+      <a href="#attendance">Mark Attendance</a>
+      <a href="#advance">Advance Payment</a>
+      <a href="#salary">Salary Summary</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="register">
+      <h2>Register New Worker</h2>
+      <form id="registerForm">
+        <input type="text" placeholder="Name" required />
+        <input type="number" placeholder="Daily Wage" required />
+        <button type="submit">Register</button>
+      </form>
+    </section>
+
+    <section id="attendance">
+      <h2>Mark Attendance</h2>
+      <form id="attendanceForm">
+        <input type="text" placeholder="Worker Name" required />
+        <input type="date" required />
+        <select required>
+          <option value="full">Full Day</option>
+          <option value="half">Half Day</option>
+        </select>
+        <button type="submit">Mark</button>
+      </form>
+    </section>
+
+    <section id="advance">
+      <h2>Advance Payment</h2>
+      <form id="advanceForm">
+        <input type="text" placeholder="Worker Name" required />
+        <input type="number" placeholder="Amount" required />
+        <input type="date" required />
+        <button type="submit">Record Advance</button>
+      </form>
+    </section>
+
+    <section id="salary">
+      <h2>Salary Summary</h2>
+      <p>Feature coming soon. This will calculate salary based on attendance and advances.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Qazi Labor Manager</p>
+  </footer>
+
   <script src="app.js"></script>
 </body>
 </html>
